@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from keras import backend as K
+from keras import losses as losses 
 from keras.models import Sequential
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
@@ -15,7 +16,7 @@ np.random.seed(0)
 
 def masked_loss_function(y_true, y_pred, mask_value = -1):
     mask = K.cast(K.not_equal(y_true, mask_value), K.floatx())
-    return K.binary_crossentropy(y_true * mask, y_pred * mask)
+    return losses.mean_squared_error(y_true * mask, y_pred * mask)
 
 
 
