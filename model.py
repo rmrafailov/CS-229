@@ -6,11 +6,13 @@ from keras import losses as losses
 from keras.models import Sequential
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
-from keras.layers import Lambda, Conv2D, MaxPooling2D, Dropout, Dense, Flatten
+from keras.layers import Lambda, Conv2D, MaxPooling2D, Dropout, Dense, Flatten, Input
+from keras.models import Model
 from utils import INPUT_SHAPE, batch_generator
 import argparse
 import os
 
+IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS = 66, 200, 3
 np.random.seed(0)
 
 
@@ -38,20 +40,43 @@ def build_model(args):
     """
     Modified NVIDIA model
     """
-    model = Sequential()
-    model.add(Lambda(lambda x: x/127.5-1.0, input_shape=INPUT_SHAPE))
-    model.add(Conv2D(24, 5, 5, activation='elu', subsample=(2, 2)))
-    model.add(Conv2D(36, 5, 5, activation='elu', subsample=(2, 2)))
-    model.add(Conv2D(48, 5, 5, activation='elu', subsample=(2, 2)))
-    model.add(Conv2D(64, 3, 3, activation='elu'))
-    model.add(Conv2D(64, 3, 3, activation='elu'))
-    model.add(Dropout(args.keep_prob))
-    model.add(Flatten())
-    model.add(Dense(100, activation='elu'))
-    model.add(Dense(75, activation='elu'))
-    model.add(Dense(50, activation='elu'))
-    model.add(Dense(20))
-    model.summary()
+    #model = Sequential()
+    #model.add(Lambda(lambda x: x/127.5-1.0, input_shape=INPUT_SHAPE))
+    #model.add(Conv2D(24, 5, 5, activation='elu', subsample=(2, 2)))
+    #model.add(Conv2D(36, 5, 5, activation='elu', subsample=(2, 2)))
+    #model.add(Conv2D(48, 5, 5, activation='elu', subsample=(2, 2)))
+    #model.add(Conv2D(64, 3, 3, activation='elu'))
+    #model.add(Conv2D(64, 3, 3, activation='elu'))
+    #model.add(Dropout(args.keep_prob))
+    #model.add(Flatten())
+    #model.add(Dense(100, activation='elu'))
+    #model.add(Dense(75, activation='elu'))
+    #model.add(Dense(50, activation='elu'))
+    #model.add(Dense(20))
+    #model.summary()
+
+
+    inp = Input(shape=(66, 200, 3))
+    L1 = Lambda(lambda x: x/127.5-1.0)(inp)
+    L2 = Conv2D(24, (5, 5), activation='elu', strides=(2, 2))(L1)
+    L3 = Conv2D(36, (5, 5), activation='elu', strides=(2, 2))(L2)
+    L4 = Conv2D(48, (5, 5), activation='elu', strides=(2, 2))(L3)
+    L5 = Conv2D(64, (3, 3), activation='elu')(L4)
+    L6 = Conv2D(64, (3, 3), activation='elu')(L5)
+    L7 = Dropout(args.keep_prob)(L6)
+    L8 = Flatten()(L7)
+    L9 = Dense(100, activation='elu')(L8)
+    L10 = Dense(75, activation='elu')(L9)
+    
+    A1 = Dense(50, activation='elu')(L10)
+    A2 = Dense(20, activation='elu')(A1)
+    
+    V1 = Dense(50, activation='elu')(L10)
+    V2 = Dense(1, activation='elu')(V1)
+    
+    Q = Lambda(lambda x: x[0][:] + x[1][:] - K.mean(x[1][:]))([V2, A2])
+
+    model = Model(inp, Q)
 
     return model
 
