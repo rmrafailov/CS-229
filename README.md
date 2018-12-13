@@ -8,7 +8,6 @@ In this project we explore different autonomous driving models in a simulated en
 
 - model_NVIDIA.py The original NVIDIA model for behavioural cloning. 
 - model_NVIDIA_RL.py The modified NVIDIA model for the RL approach.
-- model_NVIDIA_RL.py The modified NVIDIA model for the RL approach.
 - model_DuelingNetwork.py The modified NVIDIA model for the RL approach.
 - drive.py The original script used by the model to communicate with the simulator. 
 - drive_RL.py The script used to drive the car with the reinforcement learning algorithm. 
