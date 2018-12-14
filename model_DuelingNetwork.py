@@ -60,7 +60,7 @@ def build_model(args):
     V1 = Dense(50, activation='elu')(L10)
     V2 = Dense(1, activation='elu')(V1)
     
-    Q = Lambda(lambda x: x[0][:] + x[1][:] - K.mean(x[1][:]))([V2, A2])
+    Q = Lambda(lambda x: x[0][:] + x[1][:] - K.max(x[1][:]))([V2, A2])
 
     model = Model(inp, Q)
 
